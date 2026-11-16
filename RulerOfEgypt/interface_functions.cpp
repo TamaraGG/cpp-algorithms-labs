@@ -6,24 +6,23 @@
 #include "interface_functions.h"
 
 #include <cmath>
+#include <cstdlib>
 #include <limits>
+#include <sstream>
 
 void print_first_report(const RoundState &rs) {
     std::cout << "Мой повелитель, с данного момента Вам предстоит править нашим государством Египтом.\n"
                  "Сейчас идет год " << rs.current_round + 1 << " твоего высочайшего правления.\n"
                  "Позвольте мне доложить о текущем положении дел:\n"
-                 "\tВам принадлежит " << rs.land << " акров земли.\n"
-                 "\tВсего в государстве проживает " << rs.population << " людей.\n"
-                 "\tНа данный момент в запасах имеется " << static_cast<double>(rs.wheat) / 10.f <<
-                     " бушелей пшеницы.\n"
-                 "\tЦена одного акра земли в бушелях пшеницы составляет " <<
-                     static_cast<double>(rs.acre_price) / 10.f << ".\n";
+                 "\tВам принадлежит " << print_land_acres(rs.land) << " земли.\n"
+                 "\tВсего в государстве проживает " << print_people(rs.population) << ".\n"
+                 "\tНа данный момент в запасах имеется " << print_wheat_bushels(rs.wheat) <<
+                     " пшеницы.\n"
+                 "\tЦена одного акра земли составляет " <<
+                     print_wheat_bushels(rs.acre_price) << " пшеницы.\n";
 }
 
 void print_report(const RoundState& rs, const RoundReport& rch) {
-
-    std::ios::fmtflags old_flags = std::cout.flags();
-    std::streamsize old_prec = std::cout.precision();
 
     std::cout << "------------------------------------------" << std::endl;
 
@@ -32,37 +31,77 @@ void print_report(const RoundState& rs, const RoundReport& rch) {
     std::cout << "в году " << rs.current_round + 1 << " твоего высочайшего правления" << std::endl;
 
     if (rch.died_from_hunger_population != 0)
-        std::cout << rch.died_from_hunger_population << " человек умерли с голоду, ";
+        std::cout << print_people(rch.died_from_hunger_population) << " умерли с голоду, ";
     if (rch.new_population != 0)
-        std::cout << rch.new_population << " человек прибыли в наш великий город;" << std::endl;
+        std::cout << print_people(rch.new_population) << " прибыли в наш великий город;" << std::endl;
     if (rch.is_plague)
         std::cout << "Чума уничтожила половину населения;" << std::endl;
-    std::cout << "Население города сейчас составляет " << rs.population << " человек;" << std::endl;
+    std::cout << "Население города сейчас составляет " << print_people(rs.population) << ";" << std::endl;
 
-    std::cout << std::fixed << std::setprecision(2);
     std::cout << "Мы собрали "
-        << static_cast<double>(rch.collected_wheat) / 10.f << " бушелей пшеницы, по ";
-    std::cout << static_cast<double>(rch.wheat_from_acre) / 10.f << " бушеля с акра;" << std::endl;
+        << print_wheat_bushels(rch.collected_wheat) << " пшеницы, по ";
+    std::cout << print_wheat_bushels(rch.wheat_from_acre) << " с акра;" << std::endl;
     if (rch.wheat_eaten_by_rats != 0)
-        std::cout << "Крысы истребили " << static_cast<double>(rch.wheat_eaten_by_rats) / 10.f
-            << " бушелей пшеницы, оставив "
-            << static_cast<double>(rs.wheat) / 10.f << " бушеля в амбарах;" << std::endl;
+        std::cout << "Крысы истребили " << print_wheat_bushels(rch.wheat_eaten_by_rats) << " пшеницы, оставив "
+            << print_wheat_bushels(rs.wheat) << " в амбарах;" << std::endl;
     else
-        std::cout << "Сейчас у вас " << static_cast<double>(rs.wheat) / 10.f  << " бушеля в амбарах;" << std::endl;
+        std::cout << "Сейчас у вас " << print_wheat_bushels(rs.wheat) << " в амбарах;" << std::endl;
 
-    std::cout << "1 акр земли стоит сейчас " << static_cast<double>(rs.acre_price) / 10.f << " бушель" << std::endl;
+    std::cout << "1 акр земли стоит сейчас " << print_wheat_bushels(rs.acre_price) << std::endl;
 
-    std::cout.flags(old_flags);
-    std::cout.precision(old_prec);
-
-    std::cout << "current lands : " << rs.land << std::endl;
+    std::cout << "Город сейчас занимает " << print_land_acres(rs.land) << "." << std::endl;
 
     std::cout << "------------------------------------------" << std::endl;
 
 }
 
-void print_wheat_bushels(int amount) {
+std::string print_wheat_bushels(int amount) {
+    const bool is_whole = amount % 10 == 0;
+    const int last_two_digits = std::abs((amount / 10) % 100);
+    const int last_digit = last_two_digits % 10;
+    const char* word = "бушелей";
 
+    if (!is_whole) {
+        word = "бушеля";
+    } else if (last_two_digits < 11 || last_two_digits > 14) {
+        if (last_digit == 1) {
+            word = "бушель";
+        } else if (last_digit >= 2 && last_digit <= 4) {
+            word = "бушеля";
+        }
+    }
+
+    std::ostringstream output;
+    output << std::fixed << std::setprecision(is_whole ? 0 : 1)
+           << static_cast<double>(amount) / 10.0 << ' ' << word;
+    return output.str();
+}
+
+std::string print_land_acres(int amount) {
+    const int last_two_digits = std::abs(amount % 100);
+    const int last_digit = last_two_digits % 10;
+    const char* word = "акров";
+
+    if (last_two_digits < 11 || last_two_digits > 14) {
+        if (last_digit == 1) {
+            word = "акр";
+        } else if (last_digit >= 2 && last_digit <= 4) {
+            word = "акра";
+        }
+    }
+    return std::to_string(amount) + ' ' + word;
+}
+
+std::string print_people(int amount) {
+    const int last_two_digits = std::abs(amount % 100);
+    const int last_digit = last_two_digits % 10;
+    const char* word = "человек";
+
+    if ((last_two_digits < 11 || last_two_digits > 14) &&
+        last_digit >= 2 && last_digit <= 4) {
+        word = "человека";
+    }
+    return std::to_string(amount) + ' ' + word;
 }
 
 int read_int(const std::string& prompt, bool is_none_negative) {
