@@ -24,9 +24,8 @@ int main() {
             } else {
                 std::cout << "Не удалось прочитать сохранение. Начинаем новую игру.\n";
                 round_state = create_initial_state();
+                delete_save_file(FILE_NAME);
             }
-        } else {
-            delete_save_file(FILE_NAME);
         }
     }
 
@@ -55,14 +54,12 @@ int main() {
 
         if (update_status != GameOverReason::NONE) {
             print_loss_report(update_status);
-            delete_save_file(FILE_NAME);
             break;
         }
     }
 
     if (round_state.current_round == ROUNDS_NUMBER) {
         print_final_statistics(round_state);
-        delete_save_file(FILE_NAME);
     }
 
     return 0;
