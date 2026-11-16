@@ -15,7 +15,8 @@ bool write_game_to_file(const RoundState &rs, const RoundReport &rch, const std:
         << (rch.is_plague ? 1 : 0) << " " << rch.collected_wheat << " "
         << rch.wheat_from_acre << " " << rch.wheat_eaten_by_rats << "\n";
 
-    return out.good();
+    out.close();
+    return !out.fail();
 }
 
 bool read_game_from_file(RoundState &rs, RoundReport &rch, const std::string& file_name) {
