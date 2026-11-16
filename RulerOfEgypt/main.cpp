@@ -6,6 +6,9 @@
 #include "settings.h"
 #include "work_with_files.h"
 
+
+int SAVE_TO_FILE_RETRIES = 3;
+
 int main() {
     SetConsoleCP(CP_UTF8);
     SetConsoleOutputCP(CP_UTF8);
@@ -35,9 +38,16 @@ int main() {
         }
 
         if (ask_save_and_exit()) {
-            write_game_to_file(round_state, round_changes, FILE_NAME);
-            std::cout << "Игра успешно сохранена. До скорой встречи, повелитель!\n";
-            return 0;
+            if (write_game_to_file(round_state, round_changes, FILE_NAME)) {
+                std::cout << "Игра успешно сохранена. До скорой встречи, повелитель!\n";
+                return 0;
+            }
+            std::cout << "Приношу свои извинения, но игра не может быть сохранена.";
+            if (!ask_save_and_exit()) {
+                std::cout << "Прощайте, повелитель!\n";
+                return 0;
+            }
+
         }
 
         get_info_from_user(update_info, round_state, round_changes);
