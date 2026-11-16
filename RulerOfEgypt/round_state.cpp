@@ -17,30 +17,39 @@ std::vector<ValidationError> validate_update_info(const UpdateInfo &ui,
 
     if (ui.wheat_to_eat < 0 or ui.land_to_farm < 0) {
         errors.push_back(ValidationError::NEGATIVE_VALUE);
+        return errors;
     }
 
-    if (ui.land_to_buy_sell * rs.acre_price > rs.wheat) {
+    const std::int64_t trade = ui.land_to_buy_sell;
+    const std::int64_t cost = trade * rs.acre_price;
+    const std::int64_t land_after_trade = rs.land + trade;
+    const std::int64_t wheat_after_trade = rs.wheat - cost;
+
+    if (cost > rs.wheat) {
         errors.push_back(ValidationError::NOT_ENOUGH_WHEAT_TO_SELL);
     }
-    else if (-ui.land_to_buy_sell > rs.land) {
+    else if (land_after_trade < 0) {
         errors.push_back(ValidationError::NOT_ENOUGH_LAND_TO_SELL);
-
     }
     else {
-        if (ui.wheat_to_eat > rs.wheat - ui.land_to_buy_sell * rs.acre_price) {
+        if (ui.wheat_to_eat > wheat_after_trade) {
             errors.push_back(ValidationError::NOT_ENOUGH_WHEAT_TO_EAT);
         }
 
-        int new_land = std::max(0, rs.land + ui.land_to_buy_sell);
-        int new_wheat = std::max(0, rs.wheat - ui.wheat_to_eat - ui.land_to_buy_sell * rs.acre_price);
+        const std::int64_t wheat_after_food =
+        std::max<std::int64_t>(0, wheat_after_trade - ui.wheat_to_eat);
+        const std::int64_t farm_capacity =
+            static_cast<std::int64_t>(rs.population) * LAND_TO_FARM_PER_PERSON;
+        const std::int64_t seed_cost =
+            static_cast<std::int64_t>(ui.land_to_farm) * WHEAT_PER_ACRE_TO_SOW;
 
-        if (ui.land_to_farm > new_land) {
+        if (ui.land_to_farm > land_after_trade) {
             errors.push_back(ValidationError::NOT_ENOUGH_LAND_TO_FARM);
         }
-        else if (ui.land_to_farm > rs.population * LAND_TO_FARM_PER_PERSON) {
+        else if (ui.land_to_farm > farm_capacity) {
             errors.push_back(ValidationError::NOT_ENOUGH_PEOPLE_FOR_FARM);
         }
-        else if (ui.land_to_farm * WHEAT_PER_ACRE_TO_SOW > new_wheat) {
+        else if (seed_cost > wheat_after_food) {
             errors.push_back(ValidationError::NOT_ENOUGH_WHEAT_TO_FARM);
         }
     }
@@ -55,14 +64,14 @@ bool is_valid_saved_state(const RoundState& rs, const RoundReport& report) {
 
     if (rs.acre_price < WHEAT_PER_ACRE_TO_BUY_LOWER ||
         rs.acre_price > WHEAT_PER_ACRE_TO_BUY_UPPER ||
-        !std::isfinite(rs.hunger_percent) || rs.hunger_percent < 0.0f ||
+        !std::isfinite(rs.hunger_percent) || rs.hunger_percent < 0.0 ||
         rs.hunger_percent > FAMINE_MIN_PERCENT_TO_LOSE) {
         return false;
     }
 
     if (rs.current_round == 0) {
         return rs.population == START_POPULATION && rs.land == START_LAND &&
-            rs.wheat == START_WHEAT && rs.hunger_percent == 0.0f &&
+            rs.wheat == START_WHEAT && rs.hunger_percent == 0.0 &&
             report.died_from_hunger_population == 0 && report.new_population == 0 &&
             !report.is_plague && report.collected_wheat == 0 &&
             report.wheat_from_acre == 0 && report.wheat_eaten_by_rats == 0;
@@ -98,7 +107,7 @@ bool is_valid_saved_state(const RoundState& rs, const RoundReport& report) {
         static_cast<std::int64_t>(report.died_from_hunger_population) * 100 >
             previous_max_population * FAMINE_MIN_PERCENT_TO_LOSE ||
         report.wheat_eaten_by_rats > static_cast<std::int64_t>(
-            max_resources * static_cast<double>(WHEAT_EATEN_BY_RATS_COEF_UPPER))) {
+            static_cast<double>(max_resources) * WHEAT_EATEN_BY_RATS_COEF_UPPER)) {
         return false;
     }
 
@@ -116,7 +125,7 @@ RoundState create_initial_state() {
             START_LAND,
             START_WHEAT,
             0,
-            0,
+            0.0,
             get_random(WHEAT_PER_ACRE_TO_BUY_LOWER, WHEAT_PER_ACRE_TO_BUY_UPPER)
         );
 }
@@ -125,20 +134,25 @@ GameOverReason update_state(RoundState &rs, const UpdateInfo &ui, RoundReport &r
     // random values
 
     r.wheat_from_acre = get_random(WHEAT_FROM_ACRE_LOWER, WHEAT_FROM_ACRE_UPPER);
-    float wheat_eaten_by_rats_coef  = get_random(WHEAT_EATEN_BY_RATS_COEF_LOWER, WHEAT_EATEN_BY_RATS_COEF_UPPER);
+    double wheat_eaten_by_rats_coef  = get_random(WHEAT_EATEN_BY_RATS_COEF_LOWER, WHEAT_EATEN_BY_RATS_COEF_UPPER);
 
-    r.is_plague = get_random(0.f, 1.f) < PLAGUE_PROBABILITY;
+    r.is_plague = get_random(0.0, 1.0) < PLAGUE_PROBABILITY;
 
     // 1. buy/sell land
-    rs.land += ui.land_to_buy_sell;
-    rs.wheat = std::max(0, rs.wheat - ui.land_to_buy_sell * rs.acre_price);
+    const std::int64_t trade = ui.land_to_buy_sell;
+    const std::int64_t cost = trade * rs.acre_price;
+    const std::int64_t land_after_trade = rs.land + trade;
+    const std::int64_t wheat_after_trade = rs.wheat - cost;
+
+    rs.land = static_cast<int>(land_after_trade);
+    rs.wheat = static_cast<int>(wheat_after_trade);
 
     // 2. farming wheat
     r.collected_wheat = ui.land_to_farm * r.wheat_from_acre; // collect
     rs.wheat += ui.land_to_farm * (r.wheat_from_acre - WHEAT_PER_ACRE_TO_SOW);
 
     // 3. rats
-    r.wheat_eaten_by_rats = static_cast<int>(static_cast<double>(rs.wheat) * wheat_eaten_by_rats_coef);
+    r.wheat_eaten_by_rats = static_cast<int>(rs.wheat * wheat_eaten_by_rats_coef);
     rs.wheat -= r.wheat_eaten_by_rats;
 
     // 4. hunger
@@ -146,28 +160,30 @@ GameOverReason update_state(RoundState &rs, const UpdateInfo &ui, RoundReport &r
     rs.wheat -= wheat_to_eat;
     r.died_from_hunger_population = std::max(0, rs.population - wheat_to_eat / WHEAT_PER_PERSON);
 
-    float current_year_hunger = 0.0f;
+    double current_year_hunger = 0.0;
     if (rs.population > 0) {
-        current_year_hunger = (static_cast<float>(r.died_from_hunger_population) / static_cast<float>(rs.population)) * 100.0f;
+        current_year_hunger = r.died_from_hunger_population * 100.0 / rs.population;
     }
     int completed_rounds = rs.current_round + 1;
-    rs.hunger_percent = (rs.hunger_percent * static_cast<float>(rs.current_round) + current_year_hunger) /
-        static_cast<float>(completed_rounds);
+    rs.hunger_percent = (rs.hunger_percent * rs.current_round + current_year_hunger) / completed_rounds;
 
     if (current_year_hunger > FAMINE_MIN_PERCENT_TO_LOSE) {
         return GameOverReason::FAMINE_RIOT;
     }
 
     // 5. new population
-    int64_t new_population = std::floor(
-        r.died_from_hunger_population / 2.0 + ((50 - r.wheat_from_acre) * rs.wheat) / 60000.0 + 1.0
+    double new_population = std::floor(
+        r.died_from_hunger_population / 2.0 + ((50.0 - r.wheat_from_acre) * rs.wheat) / 60000.0 + 1.0
         );
-    r.new_population = static_cast<int>(new_population);
-    r.new_population = std::clamp(r.new_population, NEW_POPULATION_LOWER, NEW_POPULATION_UPPER);
+    r.new_population = static_cast<int>(std::clamp(
+        new_population,
+        static_cast<double>(NEW_POPULATION_LOWER),
+        static_cast<double>(NEW_POPULATION_UPPER)));
     rs.population = rs.population - r.died_from_hunger_population + r.new_population;
 
     // 6. plague
-    rs.population = std::floor(rs.population * (r.is_plague ? PLAGUE_POPULATION_DECLINE : 1.));
+    rs.population = static_cast<int>(std::floor(
+        rs.population * (r.is_plague ? PLAGUE_POPULATION_DECLINE : 1.0)));
 
     if (rs.population <= 0) {
             return GameOverReason::EXTINCTION;
@@ -178,9 +194,9 @@ GameOverReason update_state(RoundState &rs, const UpdateInfo &ui, RoundReport &r
     return GameOverReason::NONE;
 }
 
-float get_random(const float min, const float max) {
+double get_random(const double min, const double max) {
     static std::mt19937 gen(std::random_device{}());
-    std::uniform_real_distribution<float> dist(min, max);
+    std::uniform_real_distribution<double> dist(min, max);
     return dist(gen);
 }
 

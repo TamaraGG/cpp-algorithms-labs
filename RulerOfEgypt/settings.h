@@ -19,12 +19,12 @@ inline constexpr int START_LAND = 1000;
 
 // loose rules
 inline constexpr int POPULATION_TO_LOOSE = 0;
-inline constexpr float POPULATION_DIFFERENCE_TO_LOOSE = 0.45f;
+inline constexpr double POPULATION_DIFFERENCE_TO_LOOSE = 0.45;
 
 // coefficients
 // 1. population
-inline constexpr float PLAGUE_PROBABILITY = 0.15f;
-inline constexpr float PLAGUE_POPULATION_DECLINE = 0.5f;
+inline constexpr double PLAGUE_PROBABILITY = 0.15;
+inline constexpr double PLAGUE_POPULATION_DECLINE = 0.5;
 
 inline constexpr int NEW_POPULATION_LOWER = 0;
 inline constexpr int NEW_POPULATION_UPPER = 50;
@@ -40,8 +40,8 @@ inline constexpr int WHEAT_PER_ACRE_TO_SOW = 5;         // multiplied by 10
 inline constexpr int WHEAT_FROM_ACRE_LOWER = 10; // multiplied by 10
 inline constexpr int WHEAT_FROM_ACRE_UPPER = 60; // multiplied by 10
 
-inline constexpr float WHEAT_EATEN_BY_RATS_COEF_LOWER = 0.f;
-inline constexpr float WHEAT_EATEN_BY_RATS_COEF_UPPER = 0.07f;
+inline constexpr double WHEAT_EATEN_BY_RATS_COEF_LOWER = 0.0;
+inline constexpr double WHEAT_EATEN_BY_RATS_COEF_UPPER = 0.07;
 
 // 4. farming
 inline constexpr int LAND_TO_FARM_PER_PERSON = 10;

@@ -34,7 +34,7 @@ struct RoundState {
     int wheat; // multiplied by 10
 
     int current_round;
-    float hunger_percent;
+    double hunger_percent;
     int acre_price;  // multiplied by 10
 };
 
@@ -62,6 +62,6 @@ RoundState create_initial_state();
 
 
 int get_random(int min, int max);
-float get_random(float min, float max);
+double get_random(double min, double max);
 
 #endif //RULEROFEGYPT_ROUND_STATE_H

@@ -1,12 +1,15 @@
 #include "work_with_files.h"
 #include <fstream>
 #include <cstdio>
+#include <iomanip>
+#include <limits>
 
 bool write_game_to_file(const RoundState &rs, const RoundReport &rch, const std::string& file_name) {
     std::ofstream out(file_name);
     if (!out.is_open()) {
         return false;
     }
+    out << std::setprecision(std::numeric_limits<double>::max_digits10);
 
     out << rs.population << " " << rs.land << " " << rs.wheat << " "
         << rs.current_round << " " << rs.hunger_percent << " " << rs.acre_price << "\n";
