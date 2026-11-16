@@ -31,9 +31,9 @@ void print_report(const RoundState& rs, const RoundReport& rch) {
     std::cout << "в году " << rs.current_round + 1 << " твоего высочайшего правления" << std::endl;
 
     if (rch.died_from_hunger_population != 0)
-        std::cout << print_people(rch.died_from_hunger_population) << " умерли с голоду, ";
+        std::cout << print_people(rch.died_from_hunger_population) << " умерли с голоду.\n";
     if (rch.new_population != 0)
-        std::cout << print_people(rch.new_population) << " прибыли в наш великий город;" << std::endl;
+        std::cout << print_people(rch.new_population) << " прибыли в наш великий город.\n" << std::endl;
     if (rch.is_plague)
         std::cout << "Чума уничтожила половину населения;" << std::endl;
     std::cout << "Население города сейчас составляет " << print_people(rs.population) << ";" << std::endl;
@@ -151,14 +151,21 @@ void ask_player(UpdateInfo& ui) {
 
 void print_final_statistics(const RoundState &rs) {
 
-    int land_per_person = (rs.population > 0) ? (rs.land / rs.population) : 0;
+    const std::streamsize previous_precision = std::cout.precision();
+    const std::ios_base::fmtflags previous_flags = std::cout.flags();
+
+    double land_per_person = (rs.population > 0) ? (static_cast<double>(rs.land) / rs.population) : 0.0;
     int hunger_percent = static_cast<int>(std::round(rs.hunger_percent));
 
     std::cout << "Мой повелитель, Вы завершили свое правление, длившееся 10 лет.\n"
                  "В результате Вашего правления:\n"
                  "\tсреднегодовой процент умерших от голода людей составил "
                  << hunger_percent << "%.\n"
-                 "\tКоличество акров земли на одного жителя составило " << land_per_person << "\n";
+                 "\tКоличество акров земли на одного жителя составило "
+                 << std::fixed << std::setprecision(2) << land_per_person << "\n";
+
+    std::cout.precision(previous_precision);
+    std::cout.flags(previous_flags);
 
     if (land_per_person < 7 and rs.hunger_percent > 33) {
         std::cout << "Из-за вашей некомпетентности в управлении, народ устроил бунт, и изгнал вас их города. "
