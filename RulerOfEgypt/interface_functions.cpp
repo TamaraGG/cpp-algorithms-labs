@@ -113,13 +113,13 @@ void print_final_statistics(const RoundState &rs) {
                  << hunger_percent << "%.\n"
                  "\tКоличество акров земли на одного жителя составило " << land_per_person << "\n";
 
-    if (land_per_person < 7 and hunger_percent > 33) {
+    if (land_per_person < 7 and rs.hunger_percent > 33) {
         std::cout << "Из-за вашей некомпетентности в управлении, народ устроил бунт, и изгнал вас их города. "
                      "Теперь вы вынуждены влачить жалкое существование в изгнании\n";
-    } else if (land_per_person < 9 and hunger_percent > 10) {
+    } else if (land_per_person < 9 and rs.hunger_percent > 10) {
         std::cout << "Вы правили железной рукой, подобно Нерону и Ивану Грозному. Народ вздохнул с облегчением, "
                      "и никто больше не желает видеть вас правителем\n";
-    } else if (land_per_person < 10 and hunger_percent > 3) {
+    } else if (land_per_person < 10 and rs.hunger_percent > 3) {
         std::cout << "Вы справились вполне неплохо, у вас, конечно, есть недоброжелатели, "
                      "но многие хотели бы увидеть вас во главе города снова\n";
     } else {
