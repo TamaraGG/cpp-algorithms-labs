@@ -59,6 +59,7 @@ std::vector<ValidationError> validate_update_info(const UpdateInfo& ui,
     const RoundState &rs,
     const RoundReport& rr
     );
+bool is_valid_saved_state(const RoundState& rs, const RoundReport& report);
 
 RoundState create_initial_state();
 

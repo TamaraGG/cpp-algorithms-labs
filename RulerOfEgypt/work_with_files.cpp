@@ -20,24 +20,44 @@ bool write_game_to_file(const RoundState &rs, const RoundReport &rch, const std:
 }
 
 bool read_game_from_file(RoundState &rs, RoundReport &rch, const std::string& file_name) {
+    RoundState loaded_state{};
+    RoundReport loaded_report{};
+
     std::ifstream in(file_name);
     if (!in.is_open()) {
         return false;
     }
 
     int is_plague = 0;
-    if (!(in >> rs.population >> rs.land >> rs.wheat
-             >> rs.current_round >> rs.hunger_percent >> rs.acre_price)) {
+    if (!(in >> loaded_state.population >> loaded_state.land >> loaded_state.wheat
+             >> loaded_state.current_round >> loaded_state.hunger_percent >> loaded_state.acre_price)) {
         return false;
     }
 
-    if (!(in >> rch.died_from_hunger_population >> rch.new_population
-             >> is_plague >> rch.collected_wheat
-             >> rch.wheat_from_acre >> rch.wheat_eaten_by_rats)) {
+    if (!(in >> loaded_report.died_from_hunger_population >> loaded_report.new_population
+             >> is_plague >> loaded_report.collected_wheat
+             >> loaded_report.wheat_from_acre >> loaded_report.wheat_eaten_by_rats)) {
         return false;
     }
 
-    rch.is_plague = (is_plague != 0);
+    if (is_plague != 0 && is_plague != 1) {
+        return false;
+    }
+
+    in >> std::ws;
+    if (!in.eof()) {
+        return false;
+    }
+
+    loaded_report.is_plague = (is_plague != 0);
+
+    if (!is_valid_saved_state(loaded_state, loaded_report)) {
+        return false;
+    }
+
+    rs = loaded_state;
+    rch = loaded_report;
+
     return true;
 }
 
