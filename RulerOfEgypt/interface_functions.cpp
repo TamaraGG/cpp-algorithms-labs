@@ -64,11 +64,15 @@ void print_wheat_bushels(int amount) {
 
 }
 
-int read_int(const std::string& prompt) {
+int read_int(const std::string& prompt, bool is_none_negative) {
     int value;
     while (true) {
         std::cout << prompt;
         if (std::cin >> value) {
+            if (is_none_negative and value < 0) {
+                std::cout << "Количество пшеницы не может быть отрицательным.\n";
+                continue;
+            }
             return value;
         }
         if (std::cin.eof()) {
@@ -85,8 +89,17 @@ void ask_player(UpdateInfo& ui) {
 
     ui.land_to_buy_sell = read_int("\tСколько акров земли повелеваешь купить (положительное число) или продать (отрицательное число)? ");
 
-    ui.wheat_to_eat = read_int("\tСколько бушелей пшеницы повелеваешь съесть? ") * 10;
-    ui.land_to_farm = read_int("\tСколько акров земли повелеваешь засеять? ");
+    while (true) {
+        int bushels = read_int("\tСколько бушелей пшеницы повелеваешь съесть? ", true);
+        if (bushels > std::numeric_limits<int>::max() / 10) {
+            std::cout << "Слишком большое число. Повторите ввод.\n";
+            continue;
+        }
+        ui.wheat_to_eat = bushels * 10;
+        break;
+    }
+
+    ui.land_to_farm = read_int("\tСколько акров земли повелеваешь засеять? ", true);
 }
 
 void print_final_statistics(const RoundState &rs) {
@@ -123,6 +136,8 @@ void print_loss_report(GameOverReason reason) {
         case GameOverReason::FAMINE_RIOT:
             std::cout << "В этом году от голода умерло слишком много людей. "
                          "Вы плохо распоряжаетесь ресурсами. Позор Вам.\n";
+        case GameOverReason::NONE:
+            break;
     }
 }
 

@@ -16,7 +16,7 @@ void ask_player(UpdateInfo& ui);
 void print_final_statistics(const RoundState& rs);
 void print_loss_report(GameOverReason reason);
 
-int read_int(const std::string& prompt);
+int read_int(const std::string& prompt, bool is_none_negative = false);
 bool ask_load_saved_game();
 bool ask_save_and_exit();
 
