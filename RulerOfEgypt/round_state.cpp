@@ -95,7 +95,7 @@ GameOverReason update_state(RoundState &rs, const UpdateInfo &ui, RoundReport &r
     }
 
     // 5. new population
-    long int new_population = std::floor(
+    int64_t new_population = std::floor(
         r.died_from_hunger_population / 2.0 + ((50 - r.wheat_from_acre) * rs.wheat) / 60000.0 + 1.0
         );
     r.new_population = static_cast<int>(new_population);
