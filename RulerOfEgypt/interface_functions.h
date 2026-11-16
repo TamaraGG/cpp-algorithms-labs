@@ -23,6 +23,6 @@ void print_loss_report(GameOverReason reason);
 int read_int(const std::string& prompt, bool is_none_negative = false);
 bool ask_load_saved_game();
 bool ask_save_and_exit();
-bool ask_continue_or_exit();
+bool ask_exit_without_save();
 
 #endif //RULEROFEGYPT_IO_FUNCTIONS_H

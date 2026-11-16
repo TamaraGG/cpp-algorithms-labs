@@ -253,8 +253,8 @@ bool ask_save_and_exit() {
     return choice == 0;
 }
 
-bool ask_continue_or_exit() {
-    std::cout << "\nЖелаете продолжить игру (1) или выйти (0)? ";
+bool ask_exit_without_save() {
+    std::cout << "\nЖелаете продолжить игру (1) или выйти без сохранения (0)? ";
     int choice = -1;
     while (choice != 0 && choice != 1) {
         choice = read_int("");

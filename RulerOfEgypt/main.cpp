@@ -42,7 +42,7 @@ int main() {
                 return 0;
             }
             std::cout << "Приношу свои извинения, но игра не может быть сохранена.";
-            if (!ask_continue_or_exit()) {
+            if (ask_exit_without_save()) {
                 std::cout << "Прощайте, повелитель!\n";
                 return 0;
             }
