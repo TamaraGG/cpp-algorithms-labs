@@ -195,7 +195,7 @@ void get_info_from_user(UpdateInfo &ui, const RoundState& rs, const RoundReport&
     do {
         ask_player(ui);
 
-        errors = validate_update_info(ui, rs, rr);
+        errors = validate_update_info(ui, rs);
 
         if (errors.empty()) {
             std::cout << "Как пожелаете, господин. Все будет исполнено.\n";

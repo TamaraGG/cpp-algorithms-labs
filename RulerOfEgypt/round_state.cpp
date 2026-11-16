@@ -12,8 +12,7 @@
 
 
 std::vector<ValidationError> validate_update_info(const UpdateInfo &ui,
-                                                  const RoundState &rs,
-                                                  const RoundReport &rr) {
+                                                  const RoundState &rs) {
     std::vector<ValidationError> errors;
 
     if (ui.wheat_to_eat < 0 or ui.land_to_farm < 0) {

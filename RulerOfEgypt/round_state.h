@@ -55,10 +55,7 @@ struct UpdateInfo {
 };
 
 GameOverReason update_state(RoundState& rs, const UpdateInfo& ui, RoundReport& r);
-std::vector<ValidationError> validate_update_info(const UpdateInfo& ui,
-    const RoundState &rs,
-    const RoundReport& rr
-    );
+std::vector<ValidationError> validate_update_info(const UpdateInfo& ui, const RoundState &rs);
 bool is_valid_saved_state(const RoundState& rs, const RoundReport& report);
 
 RoundState create_initial_state();
