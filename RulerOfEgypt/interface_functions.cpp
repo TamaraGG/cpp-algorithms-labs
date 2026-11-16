@@ -65,22 +65,29 @@ void print_wheat_bushels(int amount) {
 }
 
 int read_int(const std::string& prompt, bool is_none_negative) {
-    int value;
     while (true) {
         std::cout << prompt;
-        if (std::cin >> value) {
-            if (is_none_negative and value < 0) {
-                std::cout << "Количество пшеницы не может быть отрицательным.\n";
-                continue;
-            }
-            return value;
+
+        std::string line;
+        if (!std::getline(std::cin, line)) {
+            std::exit(0);
         }
-        if (std::cin.eof()) {
-            exit(0);
+
+        std::istringstream input(line);
+        int value;
+        char extra;
+
+        if (!(input >> value) || (input >> extra)) {
+            std::cout << "О повелитель, соизволь ввести целое число цифрами!\n";
+            continue;
         }
-        std::cout << "О повелитель, соизволь ввести целое число цифрами!\n";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+        if (is_none_negative && value < 0) {
+            std::cout << "Количество пшеницы не может быть отрицательным.\n";
+            continue;
+        }
+
+        return value;
     }
 }
 
