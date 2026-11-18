@@ -1,0 +1,97 @@
+#include "Array.h"
+
+#include <algorithm>
+#include <cstdlib>
+#include <iostream>
+#include <ostream>
+
+
+template<typename T>
+Array<T>::Array(int capacity) : capacity_(capacity), size_(0) {
+    buf_ = static_cast<T*>(malloc(capacity * sizeof(T)));
+}
+
+template<typename T>
+Array<T>::~Array() {
+    for (int i = 0; i < size_; ++i) {
+        buf_[i].~T();
+    }
+    free(buf_);
+}
+
+template <typename T>
+int Array<T>::Insert(int index, const T& value)
+    requires (std::is_copy_constructible_v<T> && std::is_copy_assignable_v<T>) {
+
+    index = std::clamp(index, 0, size_);
+
+    if (size_ == capacity_) {
+        int new_capacity = std::max(capacity_ + 1, static_cast<int>(capacity_ * resize_coef));
+        T* new_buf = static_cast<T*>(malloc(new_capacity * sizeof(T)));
+
+        new(new_buf + index) T(value);
+
+        for (int i = 0; i < index; ++i) {
+            ConstructMoveOrCopy(new_buf + i, buf_ + i);
+            (buf_ + i)->~T();
+        }
+
+        for (int i = index; i < size_; ++i) {
+            ConstructMoveOrCopy(new_buf + i + 1, buf_ + i);
+            (buf_ + i)->~T();
+        }
+
+        free(buf_);
+        buf_ = new_buf;
+        capacity_ = new_capacity;
+        ++size_;
+    } else {
+        if (index == size_) {
+            new(buf_ + index) T(value);
+            ++size_;
+        } else {
+            T* p = buf_ + size_;
+            T value_copy = value;
+
+            ConstructMoveOrCopy(p, p-1);
+            ++size_;
+
+            for (--p; p > buf_ + index; --p) {
+                AssignMoveOrCopy(p, p-1);
+            }
+
+            AssignMoveOrCopy(p, &value_copy);
+        }
+    }
+
+    return index;
+}
+
+template <typename T>
+int Array<T>::Insert(const T& value) {
+    return Insert(size_, value);
+}
+
+template <typename T>
+int Array<T>::size() const {
+    return size_;
+}
+
+template <typename T>
+void Array<T>::ConstructMoveOrCopy(T* dst, T* src) {
+    if constexpr (std::is_nothrow_move_constructible_v<T>) {
+        new(dst) T(std::move(*src));
+    } else {
+        new(dst) T(*src);
+    }
+}
+
+template <typename T>
+void Array<T>::AssignMoveOrCopy(T* dst, T* src) {
+    if constexpr (std::is_move_assignable_v<T>) {
+        *dst = std::move(*src);
+    } else {
+        *dst = *src;
+    }
+}
+
