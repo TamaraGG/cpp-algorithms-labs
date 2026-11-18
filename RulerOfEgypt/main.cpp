@@ -7,59 +7,57 @@
 #include "work_with_files.h"
 
 
-int SAVE_TO_FILE_RETRIES = 3;
-
 int main() {
     SetConsoleCP(CP_UTF8);
     SetConsoleOutputCP(CP_UTF8);
 
-    RoundState round_state = create_initial_state();
+    RoundState round_state = CreateInitialState();
     UpdateInfo update_info{};
     RoundReport round_changes{};
 
-    if (save_file_exists(FILE_NAME)) {
-        if (ask_load_saved_game()) {
-            if (read_game_from_file(round_state, round_changes, FILE_NAME)) {
+    if (SaveFileExists(kFileName)) {
+        if (AskLoadSavedGame()) {
+            if (ReadGameFromFile(round_state, round_changes, kFileName)) {
                 std::cout << "Игра успешно загружена!\n";
             } else {
                 std::cout << "Не удалось прочитать сохранение. Начинаем новую игру.\n";
-                round_state = create_initial_state();
-                delete_save_file(FILE_NAME);
+                round_state = CreateInitialState();
+                DeleteSaveFile(kFileName);
             }
         }
     }
 
-    for (; round_state.current_round < ROUNDS_NUMBER; round_state.current_round++) {
+    for (; round_state.current_round < kRoundNumber; round_state.current_round++) {
         if (round_state.current_round == 0) {
-            print_first_report(round_state);
+            PrintFirstReport(round_state);
         } else {
-            print_report(round_state, round_changes);
+            PrintReport(round_state, round_changes);
         }
 
-        if (ask_save_and_exit()) {
-            if (write_game_to_file(round_state, round_changes, FILE_NAME)) {
+        if (AskSaveAndExit()) {
+            if (WriteGameToFile(round_state, round_changes, kFileName)) {
                 std::cout << "Игра успешно сохранена. До скорой встречи, повелитель!\n";
                 return 0;
             }
             std::cout << "Приношу свои извинения, но игра не может быть сохранена.";
-            if (ask_exit_without_save()) {
+            if (AskExitWithoutSave()) {
                 std::cout << "Прощайте, повелитель!\n";
                 return 0;
             }
 
         }
 
-        get_info_from_user(update_info, round_state, round_changes);
-        GameOverReason update_status = update_state(round_state, update_info, round_changes);
+        GetInfoFromUser(update_info, round_state, round_changes);
+        GameOverReason update_status = UpdateState(round_state, update_info, round_changes);
 
-        if (update_status != GameOverReason::NONE) {
-            print_loss_report(update_status);
+        if (update_status != GameOverReason::kNone) {
+            PrintLossReport(update_status);
             break;
         }
     }
 
-    if (round_state.current_round == ROUNDS_NUMBER) {
-        print_final_statistics(round_state);
+    if (round_state.current_round == kRoundNumber) {
+        PrintFinalStatistics(round_state);
     }
 
     return 0;

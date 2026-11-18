@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <limits>
 
-bool write_game_to_file(const RoundState &rs, const RoundReport &rch, const std::string& file_name) {
+bool WriteGameToFile(const RoundState &rs, const RoundReport &rch, const std::string& file_name) {
     std::ofstream out(file_name);
     if (!out.is_open()) {
         return false;
@@ -22,7 +22,7 @@ bool write_game_to_file(const RoundState &rs, const RoundReport &rch, const std:
     return !out.fail();
 }
 
-bool read_game_from_file(RoundState &rs, RoundReport &rch, const std::string& file_name) {
+bool ReadGameFromFile(RoundState &rs, RoundReport &rch, const std::string& file_name) {
     RoundState loaded_state{};
     RoundReport loaded_report{};
 
@@ -54,7 +54,7 @@ bool read_game_from_file(RoundState &rs, RoundReport &rch, const std::string& fi
 
     loaded_report.is_plague = (is_plague != 0);
 
-    if (!is_valid_saved_state(loaded_state, loaded_report)) {
+    if (!IsValidSavedState(loaded_state, loaded_report)) {
         return false;
     }
 
@@ -64,11 +64,11 @@ bool read_game_from_file(RoundState &rs, RoundReport &rch, const std::string& fi
     return true;
 }
 
-bool save_file_exists(const std::string& file_name) {
+bool SaveFileExists(const std::string& file_name) {
     std::ifstream in(file_name);
     return in.good();
 }
 
-void delete_save_file(const std::string& file_name) {
+void DeleteSaveFile(const std::string& file_name) {
     std::remove(file_name.c_str());
 }

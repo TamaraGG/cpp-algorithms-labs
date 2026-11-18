@@ -11,21 +11,21 @@
 
 
 enum class ValidationError {
-    NOT_ENOUGH_LAND_TO_SELL,
-    NOT_ENOUGH_WHEAT_TO_SELL,
+    kNotEnoughLandToSell,
+    kNotEnoughWheatToSell,
 
-    NEGATIVE_VALUE,
-    NOT_ENOUGH_WHEAT_TO_EAT,
+    kNegativeValue,
+    kNotEnoughWheatToEat,
 
-    NOT_ENOUGH_PEOPLE_FOR_FARM,
-    NOT_ENOUGH_LAND_TO_FARM,
-    NOT_ENOUGH_WHEAT_TO_FARM
+    kNotEnoughPeopleForFarming,
+    kNotEnoughLandToFarming,
+    kNotEnoughWheatToFarm
 };
 
 enum class GameOverReason {
-    NONE,
-    FAMINE_RIOT,
-    EXTINCTION
+    kNone,
+    kFamineRiot,
+    kExtinction
 };
 
 struct RoundState {
@@ -54,14 +54,14 @@ struct UpdateInfo {
     int land_to_farm;
 };
 
-GameOverReason update_state(RoundState& rs, const UpdateInfo& ui, RoundReport& r);
-std::vector<ValidationError> validate_update_info(const UpdateInfo& ui, const RoundState &rs);
-bool is_valid_saved_state(const RoundState& rs, const RoundReport& report);
+GameOverReason UpdateState(RoundState& rs, const UpdateInfo& ui, RoundReport& r);
+std::vector<ValidationError> ValidateUpdateInfo(const UpdateInfo& ui, const RoundState &rs);
+bool IsValidSavedState(const RoundState& rs, const RoundReport& report);
 
-RoundState create_initial_state();
+RoundState CreateInitialState();
 
 
-int get_random(int min, int max);
-double get_random(double min, double max);
+int GetRandom(int min, int max);
+double GetRandom(double min, double max);
 
 #endif //RULEROFEGYPT_ROUND_STATE_H

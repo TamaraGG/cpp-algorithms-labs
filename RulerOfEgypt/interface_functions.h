@@ -9,20 +9,20 @@
 
 #include "round_state.h"
 
-void print_first_report(const RoundState& rs);
-void print_report(const RoundState& rs, const RoundReport& rch);
-std::string print_wheat_bushels(int amount);
-std::string print_land_acres(int amount);
+void PrintFirstReport(const RoundState& rs);
+void PrintReport(const RoundState& rs, const RoundReport& rch);
+std::string PrintWheatBushels(int amount);
+std::string PrintLandAcres(int amount);
 std::string print_people(int amount);
-void get_info_from_user(UpdateInfo &ui, const RoundState& rs, const RoundReport& rr);
-void print_errors(const std::vector<ValidationError> &errors);
-void ask_player(UpdateInfo& ui);
-void print_final_statistics(const RoundState& rs);
-void print_loss_report(GameOverReason reason);
+void GetInfoFromUser(UpdateInfo &ui, const RoundState& rs, const RoundReport& rr);
+void PrintErrors(const std::vector<ValidationError> &errors);
+void AskPlayer(UpdateInfo& ui);
+void PrintFinalStatistics(const RoundState& rs);
+void PrintLossReport(GameOverReason reason);
 
-int read_int(const std::string& prompt, bool is_none_negative = false);
-bool ask_load_saved_game();
-bool ask_save_and_exit();
-bool ask_exit_without_save();
+int ReadInt(const std::string& prompt, bool is_none_negative = false);
+bool AskLoadSavedGame();
+bool AskSaveAndExit();
+bool AskExitWithoutSave();
 
 #endif //RULEROFEGYPT_IO_FUNCTIONS_H
