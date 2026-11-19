@@ -19,6 +19,8 @@ public:
         requires (std::is_copy_constructible_v<T> && std::is_copy_assignable_v<T>);
     int Insert(const T& value);
 
+    void Remove(int index) requires (std::is_move_assignable_v<T> || std::is_copy_assignable_v<T>);
+
     int size() const;
 
 private:

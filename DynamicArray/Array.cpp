@@ -23,7 +23,7 @@ template <typename T>
 int Array<T>::Insert(int index, const T& value)
     requires (std::is_copy_constructible_v<T> && std::is_copy_assignable_v<T>) {
 
-    index = std::clamp(index, 0, size_);
+    // index = std::clamp(index, 0, size_);
 
     if (size_ == capacity_) {
         int new_capacity = std::max(capacity_ + 1, static_cast<int>(capacity_ * resize_coef));
@@ -70,6 +70,15 @@ int Array<T>::Insert(int index, const T& value)
 template <typename T>
 int Array<T>::Insert(const T& value) {
     return Insert(size_, value);
+}
+
+template <typename T>
+void Array<T>::Remove(int index) requires (std::is_move_assignable_v<T> || std::is_copy_assignable_v<T>) {
+    for (T* p = buf_ + index + 1; p < buf_ + size_; ++p) {
+        AssignMoveOrCopy(p-1, p);
+    }
+    (buf_ + size_ - 1)->~T();
+    --size_;
 }
 
 template <typename T>
