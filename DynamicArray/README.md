@@ -45,7 +45,7 @@ class Array final
 элементы влево (сдвиги выполняются аналогично insert(), но
 память при этом не освобождается).
 
-- `const T& operator[](int index) const;`, `T& operator[](int index);`
+- (done) `const T& operator[](int index) const;`, `T& operator[](int index);`
 Оператор индексирования позволяет обратиться к элементу массива
 по индексу для чтения и для записи.
 

@@ -84,6 +84,18 @@ void Array<T>::Remove(int index) requires (std::is_move_assignable_v<T> || std::
 }
 
 template <typename T>
+const T& Array<T>::operator[](int index) const {
+    assert(CheckIndex(index));
+    return buf_[index];
+}
+
+template <typename T>
+T& Array<T>::operator[](int index) {
+    assert(CheckIndex(index));
+    return buf_[index];
+}
+
+template <typename T>
 int Array<T>::size() const {
     return size_;
 }

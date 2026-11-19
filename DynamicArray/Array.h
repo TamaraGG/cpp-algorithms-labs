@@ -21,6 +21,9 @@ public:
 
     void Remove(int index) requires (std::is_move_assignable_v<T> || std::is_copy_assignable_v<T>);
 
+    const T& operator[](int index) const;
+    T& operator[](int index);
+
     int size() const;
 
 private:
