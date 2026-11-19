@@ -1,6 +1,7 @@
 #ifndef LABS_ARRAY_H
 #define LABS_ARRAY_H
 #include <concepts>
+#include <initializer_list>
 
 
 template<typename T>
@@ -35,6 +36,7 @@ class Array final {
 
 public:
     explicit Array(int capacity = 8);
+    Array(std::initializer_list<T> list);
     Array(const Array<T>& rhs);
     Array(Array<T>&& rhs) noexcept;
     Array& operator=(const Array<T>& rhs);

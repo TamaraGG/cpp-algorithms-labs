@@ -55,6 +55,14 @@ Array<T>::Array(int capacity) : capacity_(capacity), size_(0) {
 }
 
 template <typename T>
+Array<T>::Array(std::initializer_list<T> list) : Array(list.size()) {
+    for (int i = 0; i < size_; ++i) {
+        new(buf_ + i)T(*(list.begin() + i));
+        ++size_;
+    }
+}
+
+template <typename T>
 Array<T>::Array(const Array<T>& rhs) {
     buf_ = static_cast<T*>(malloc(rhs.capacity_ * sizeof(T)));
     size_ = rhs.size_;
