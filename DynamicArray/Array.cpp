@@ -53,6 +53,50 @@ Array<T>::Array(int capacity) : capacity_(capacity), size_(0) {
     buf_ = static_cast<T*>(malloc(capacity * sizeof(T)));
 }
 
+template <typename T>
+Array<T>::Array(const Array<T>& rhs) {
+    buf_ = static_cast<T*>(malloc(rhs.capacity_ * sizeof(T)));
+    size_ = rhs.size_;
+    capacity_ = rhs.capacity_;
+    for (int i = 0; i < size_; ++i) {
+        new (buf_ + i) T(*(rhs.buf_ + i));
+    }
+}
+
+template <typename T>
+Array<T>::Array(Array<T>&& rhs) noexcept {
+    buf_ = rhs.buf_;
+    size_ = rhs.size_;
+    capacity_ = rhs.capacity_;
+
+    rhs.buf_ = nullptr;
+    rhs.size_ = 0;
+    rhs.capacity_ = 0;
+}
+
+template <typename T>
+Array<T>& Array<T>::operator=(const Array<T>& rhs) {
+    if (this != &rhs) {
+        Array<T> copy(rhs);
+        Swap(copy);
+    }
+    return *this;
+}
+
+template <typename T>
+Array<T>& Array<T>::operator=(Array<T>&& rhs) noexcept {
+    Array<T> temp(std::move(rhs));
+    Swap(temp);
+    return *this;
+}
+
+template <typename T>
+void Array<T>::Swap(Array<T>& rhs) noexcept {
+    std::swap(buf_, rhs.buf_);
+    std::swap(size_, rhs.size_);
+    std::swap(capacity_, rhs.capacity_);
+}
+
 template<typename T>
 Array<T>::~Array() {
     for (int i = 0; i < size_; ++i) {

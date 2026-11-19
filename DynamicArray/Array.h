@@ -35,6 +35,11 @@ class Array final {
 
 public:
     explicit Array(int capacity = 8);
+    Array(const Array<T>& rhs);
+    Array(Array<T>&& rhs) noexcept;
+    Array& operator=(const Array<T>& rhs);
+    Array& operator=(Array<T>&& rhs) noexcept;
+    void Swap(Array<T>& rhs) noexcept;
     ~Array();
 
     int Insert(int index, const T& value)
