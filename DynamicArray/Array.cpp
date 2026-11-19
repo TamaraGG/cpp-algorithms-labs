@@ -225,7 +225,7 @@ void Array<T>::ConstructMoveOrCopy(T* dst, T* src) {
 
 template <typename T>
 void Array<T>::AssignMoveOrCopy(T* dst, T* src) {
-    if constexpr (std::is_move_assignable_v<T>) {
+    if constexpr (std::is_nothrow_move_assignable_v<T>) {
         *dst = std::move(*src);
     } else {
         *dst = *src;
