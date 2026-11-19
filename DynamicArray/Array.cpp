@@ -1,6 +1,7 @@
 #include "Array.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <ostream>
@@ -24,6 +25,7 @@ int Array<T>::Insert(int index, const T& value)
     requires (std::is_copy_constructible_v<T> && std::is_copy_assignable_v<T>) {
 
     // index = std::clamp(index, 0, size_);
+    assert(CheckIndex(index));
 
     if (size_ == capacity_) {
         int new_capacity = std::max(capacity_ + 1, static_cast<int>(capacity_ * resize_coef));
@@ -103,4 +105,11 @@ void Array<T>::AssignMoveOrCopy(T* dst, T* src) {
         *dst = *src;
     }
 }
+
+template <typename T>
+bool Array<T>::CheckIndex(int index) const {
+    return 0 <= index && index < size_;
+}
+
+
 

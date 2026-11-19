@@ -26,6 +26,7 @@ public:
 private:
     void ConstructMoveOrCopy(T* dst, T* src);
     void AssignMoveOrCopy(T* dst, T* src);
+    bool CheckIndex(int index) const;
 };
 
 
