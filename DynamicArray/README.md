@@ -53,12 +53,12 @@ class Array final
 Возвращает текущий размер (количество реально существующих в
 массиве) элементов.
 
-- `Iterator iterator();`, `ConstIterator iterator() const;`
+- (done) `Iterator iterator();`, `ConstIterator iterator() const;`
 Возвращает итератор, указывающий на первый элемент массива.
 При помощи такого итератора массив можно обойти в прямом
 порядке: от первого элемента до последнего.
 
-- `Iterator reverseIterator();`, `ConstIterator reverseIterator() const;`
+- (done) `Iterator reverseIterator();`, `ConstIterator reverseIterator() const;`
 Возвращает итератор, указывающий на последний элемент массива.
 При помощи такого итератора массив можно обойти в обратном
 порядке: от последнего элемента к первому.

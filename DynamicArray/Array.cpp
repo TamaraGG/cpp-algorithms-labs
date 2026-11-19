@@ -9,35 +9,42 @@
 
 
 template <typename T>
-Array<T>::Iterator::Iterator(T* current, T* end, bool isReverse)
+template <bool IsConst>
+Array<T>::BaseIterator<IsConst>::BaseIterator(Pointer current, Pointer end, bool isReverse)
     : current_(current), end_(end), isReverse_(isReverse) {}
 
+
 template <typename T>
-const T& Array<T>::Iterator::get() const {
+template <bool IsConst>
+const T& Array<T>::BaseIterator<IsConst>::get() const {
     assert(hasNext(current_));
     return isReverse_ ? *(current_ - 1) : *current_;
 }
 
 template <typename T>
-void Array<T>::Iterator::set(const T& value) requires (std::is_copy_assignable_v<T>) {
+template <bool IsConst>
+void Array<T>::BaseIterator<IsConst>::set(const T& value) requires (!IsConst && std::is_copy_assignable_v<T>) {
     assert(hasNext(current_));
     (isReverse_ ? *(current_ - 1) : *current_) = value;
 }
 
 template <typename T>
-void Array<T>::Iterator::set(T&& value) requires (std::is_move_assignable_v<T>) {
+template <bool IsConst>
+void Array<T>::BaseIterator<IsConst>::set(T&& value) requires (!IsConst && std::is_move_assignable_v<T>) {
     assert(hasNext(current_));
     (isReverse_ ? *(current_ - 1) : *current_) = std::move(value);
 }
 
 template <typename T>
-void Array<T>::Iterator::next() {
+template <bool IsConst>
+void Array<T>::BaseIterator<IsConst>::next() {
     assert(hasNext());
     current_ = isReverse_ ? (current_ - 1) : (current_ + 1);
 }
 
 template <typename T>
-bool Array<T>::Iterator::hasNext() const {
+template <bool IsConst>
+bool Array<T>::BaseIterator<IsConst>::hasNext() const {
     return isReverse_ ? current_ > end_ : current_ < end_;
 }
 
@@ -132,6 +139,26 @@ T& Array<T>::operator[](int index) {
 template <typename T>
 int Array<T>::size() const {
     return size_;
+}
+
+template <typename T>
+Array<T>::Iterator Array<T>::iterator() {
+    return Iterator(buf_, buf_ + size_);
+}
+
+template <typename T>
+Array<T>::ConstIterator Array<T>::iterator() const {
+    return ConstIterator(buf_, buf_ + size_);
+}
+
+template <typename T>
+Array<T>::Iterator Array<T>::reverseIterator() {
+    return Iterator(buf_, buf_ + size_, true);
+}
+
+template <typename T>
+Array<T>::ConstIterator Array<T>::reverseIterator() const {
+    return ConstIterator(buf_, buf_ + size_, true);
 }
 
 template <typename T>

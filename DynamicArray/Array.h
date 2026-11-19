@@ -11,19 +11,27 @@ class Array final {
     int size_;
     T* buf_;
 
-    class Iterator {
-        T* current_;
-        T* end_;
+    template <bool IsConst>
+    class BaseIterator {
+        using Pointer = std::conditional_t<IsConst, const T*, T*>;
+        friend class Array<T>;
+
+        Pointer current_;
+        Pointer end_;
         bool isReverse_;
 
+        BaseIterator(Pointer current, Pointer end, bool isReverse = false);
+
     public:
-        Iterator(T* current, T* end, bool isReverse = false);
         const T& get() const;
-        void set(const T& value) requires (std::is_copy_assignable_v<T>);
-        void set(T&& value) requires (std::is_move_assignable_v<T>);
+        void set(const T& value) requires (!IsConst && std::is_copy_assignable_v<T>);
+        void set(T&& value) requires (!IsConst && std::is_move_assignable_v<T>);
         void next();
         bool hasNext() const;
     };
+
+    using Iterator = BaseIterator<false>;
+    using ConstIterator = BaseIterator<true>;
 
 public:
     explicit Array(int capacity = 8);
@@ -39,6 +47,12 @@ public:
     T& operator[](int index);
 
     int size() const;
+
+    Iterator iterator();
+    ConstIterator iterator() const;
+    Iterator reverseIterator();
+    ConstIterator reverseIterator() const;
+
 
 private:
     void ConstructMoveOrCopy(T* dst, T* src);
