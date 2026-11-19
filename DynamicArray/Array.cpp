@@ -5,7 +5,41 @@
 #include <cstdlib>
 #include <iostream>
 #include <ostream>
+#include <bits/locale_facets_nonio.h>
 
+
+template <typename T>
+Array<T>::Iterator::Iterator(T* current, T* end, bool isReverse)
+    : current_(current), end_(end), isReverse_(isReverse) {}
+
+template <typename T>
+const T& Array<T>::Iterator::get() const {
+    assert(hasNext(current_));
+    return isReverse_ ? *(current_ - 1) : *current_;
+}
+
+template <typename T>
+void Array<T>::Iterator::set(const T& value) requires (std::is_copy_assignable_v<T>) {
+    assert(hasNext(current_));
+    (isReverse_ ? *(current_ - 1) : *current_) = value;
+}
+
+template <typename T>
+void Array<T>::Iterator::set(T&& value) requires (std::is_move_assignable_v<T>) {
+    assert(hasNext(current_));
+    (isReverse_ ? *(current_ - 1) : *current_) = std::move(value);
+}
+
+template <typename T>
+void Array<T>::Iterator::next() {
+    assert(hasNext());
+    current_ = isReverse_ ? (current_ - 1) : (current_ + 1);
+}
+
+template <typename T>
+bool Array<T>::Iterator::hasNext() const {
+    return isReverse_ ? current_ > end_ : current_ < end_;
+}
 
 template<typename T>
 Array<T>::Array(int capacity) : capacity_(capacity), size_(0) {

@@ -11,6 +11,20 @@ class Array final {
     int size_;
     T* buf_;
 
+    class Iterator {
+        T* current_;
+        T* end_;
+        bool isReverse_;
+
+    public:
+        Iterator(T* current, T* end, bool isReverse = false);
+        const T& get() const;
+        void set(const T& value) requires (std::is_copy_assignable_v<T>);
+        void set(T&& value) requires (std::is_move_assignable_v<T>);
+        void next();
+        bool hasNext() const;
+    };
+
 public:
     explicit Array(int capacity = 8);
     ~Array();
