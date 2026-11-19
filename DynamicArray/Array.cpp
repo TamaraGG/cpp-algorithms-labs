@@ -50,6 +50,7 @@ bool Array<T>::BaseIterator<IsConst>::hasNext() const {
 
 template<typename T>
 Array<T>::Array(int capacity) : capacity_(capacity), size_(0) {
+    assert(capacity >= 0);
     buf_ = static_cast<T*>(malloc(capacity * sizeof(T)));
 }
 
