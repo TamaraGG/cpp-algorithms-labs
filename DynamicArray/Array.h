@@ -46,7 +46,7 @@ public:
     ~Array();
 
     int Insert(int index, const T& value)
-        requires (std::is_copy_constructible_v<T> && std::is_copy_assignable_v<T>);
+        requires (std::is_copy_constructible_v<T>);
     int Insert(const T& value);
 
     void Remove(int index) requires (std::is_move_assignable_v<T> || std::is_copy_assignable_v<T>);
@@ -177,7 +177,7 @@ Array<T>::~Array() {
 
 template <typename T>
 int Array<T>::Insert(int index, const T& value)
-    requires (std::is_copy_constructible_v<T> && std::is_copy_assignable_v<T>) {
+    requires (std::is_copy_constructible_v<T>) {
 
     // index = std::clamp(index, 0, size_);
     assert(!CheckIndex(index));
