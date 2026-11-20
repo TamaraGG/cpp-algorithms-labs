@@ -117,8 +117,8 @@ Array<T>::Array(int capacity) : capacity_(capacity), size_(0) {
 
 template <typename T>
 Array<T>::Array(std::initializer_list<T> list) : Array(list.size()) {
-    for (int i = 0; i < size_; ++i) {
-        new(buf_ + i)T(*(list.begin() + i));
+    for (auto p = list.begin(); p != list.end(); ++p) {
+        new(buf_ + size_) T(*p);
         ++size_;
     }
 }
