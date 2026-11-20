@@ -65,7 +65,6 @@ public:
 private:
     void ConstructMoveOrCopy(T* dst, T* src);
     void AssignMoveOrCopy(T* dst, T* src);
-    bool CheckIndex(int index) const;
 };
 
 
@@ -180,7 +179,7 @@ int Array<T>::Insert(int index, const T& value)
     requires (std::is_copy_constructible_v<T>) {
 
     // index = std::clamp(index, 0, size_);
-    assert(!CheckIndex(index));
+    assert(0 <= index && index <= size_);
 
     if (size_ == capacity_) {
         int new_capacity = std::max(capacity_ + 1, static_cast<int>(capacity_ * resize_coef));
@@ -240,13 +239,13 @@ void Array<T>::Remove(int index) requires (std::is_move_assignable_v<T> || std::
 
 template <typename T>
 const T& Array<T>::operator[](int index) const {
-    assert(CheckIndex(index));
+    assert(0 <= index && index < size_);
     return buf_[index];
 }
 
 template <typename T>
 T& Array<T>::operator[](int index) {
-    assert(CheckIndex(index));
+    assert(0 <= index && index < size_);
     return buf_[index];
 }
 
@@ -291,11 +290,6 @@ void Array<T>::AssignMoveOrCopy(T* dst, T* src) {
     } else {
         *dst = *src;
     }
-}
-
-template <typename T>
-bool Array<T>::CheckIndex(int index) const {
-    return 0 <= index && index < size_;
 }
 
 
