@@ -277,7 +277,7 @@ Array<T>::ConstIterator Array<T>::reverseIterator() const {
 
 template <typename T>
 void Array<T>::ConstructMoveOrCopy(T* dst, T* src) {
-    if constexpr (std::is_nothrow_move_constructible_v<T>) {
+    if constexpr (std::is_nothrow_move_constructible_v<T> || !std::is_copy_constructible_v<T>) {
         new(dst) T(std::move(*src));
     } else {
         new(dst) T(*src);
@@ -286,7 +286,7 @@ void Array<T>::ConstructMoveOrCopy(T* dst, T* src) {
 
 template <typename T>
 void Array<T>::AssignMoveOrCopy(T* dst, T* src) {
-    if constexpr (std::is_nothrow_move_assignable_v<T>) {
+    if constexpr (std::is_nothrow_move_assignable_v<T> || !std::is_copy_assignable_v<T>) {
         *dst = std::move(*src);
     } else {
         *dst = *src;
