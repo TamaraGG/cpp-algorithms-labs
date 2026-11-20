@@ -78,21 +78,21 @@ Array<T>::BaseIterator<IsConst>::BaseIterator(Pointer current, Pointer end, bool
 template <typename T>
 template <bool IsConst>
 const T& Array<T>::BaseIterator<IsConst>::get() const {
-    assert(hasNext(current_));
+    assert(hasNext());
     return isReverse_ ? *(current_ - 1) : *current_;
 }
 
 template <typename T>
 template <bool IsConst>
 void Array<T>::BaseIterator<IsConst>::set(const T& value) requires (!IsConst && std::is_copy_assignable_v<T>) {
-    assert(hasNext(current_));
+    assert(hasNext());
     (isReverse_ ? *(current_ - 1) : *current_) = value;
 }
 
 template <typename T>
 template <bool IsConst>
 void Array<T>::BaseIterator<IsConst>::set(T&& value) requires (!IsConst && std::is_move_assignable_v<T>) {
-    assert(hasNext(current_));
+    assert(hasNext());
     (isReverse_ ? *(current_ - 1) : *current_) = std::move(value);
 }
 
@@ -180,7 +180,7 @@ int Array<T>::Insert(int index, const T& value)
     requires (std::is_copy_constructible_v<T> && std::is_copy_assignable_v<T>) {
 
     // index = std::clamp(index, 0, size_);
-    assert(CheckIndex(index));
+    assert(!CheckIndex(index));
 
     if (size_ == capacity_) {
         int new_capacity = std::max(capacity_ + 1, static_cast<int>(capacity_ * resize_coef));
