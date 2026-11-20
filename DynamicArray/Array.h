@@ -230,6 +230,8 @@ int Array<T>::Insert(const T& value) {
 
 template <typename T>
 void Array<T>::Remove(int index) requires (std::is_move_assignable_v<T> || std::is_copy_assignable_v<T>) {
+    assert(0 <= index && index < size_);
+
     for (T* p = buf_ + index + 1; p < buf_ + size_; ++p) {
         AssignMoveOrCopy(p-1, p);
     }
