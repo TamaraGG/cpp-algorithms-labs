@@ -268,12 +268,12 @@ Array<T>::ConstIterator Array<T>::iterator() const {
 
 template <typename T>
 Array<T>::Iterator Array<T>::reverseIterator() {
-    return Iterator(buf_, buf_ + size_, true);
+    return Iterator(buf_ + size_, buf_, true);
 }
 
 template <typename T>
 Array<T>::ConstIterator Array<T>::reverseIterator() const {
-    return ConstIterator(buf_, buf_ + size_, true);
+    return ConstIterator(buf_ + size_, buf_, true);
 }
 
 template <typename T>
