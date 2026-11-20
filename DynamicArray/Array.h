@@ -32,10 +32,10 @@ class Array final {
         bool hasNext() const;
     };
 
+public:
     using Iterator = BaseIterator<false>;
     using ConstIterator = BaseIterator<true>;
 
-public:
     explicit Array(int capacity = 8);
     Array(std::initializer_list<T> list);
     Array(const Array<T>& rhs);
