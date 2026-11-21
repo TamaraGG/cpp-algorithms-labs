@@ -2,6 +2,7 @@
 #define LABS_ARRAY_H
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <initializer_list>
 
 
@@ -182,7 +183,7 @@ int Array<T>::Insert(int index, const T& value)
     assert(0 <= index && index <= size_);
 
     if (size_ == capacity_) {
-        int new_capacity = std::max(capacity_ + 1, static_cast<int>(capacity_ * resize_coef));
+        int new_capacity = std::max(capacity_ + 1, static_cast<int>(std::ceil(capacity_ * resize_coef)));
         T* new_buf = static_cast<T*>(malloc(new_capacity * sizeof(T)));
 
         new(new_buf + index) T(value);
