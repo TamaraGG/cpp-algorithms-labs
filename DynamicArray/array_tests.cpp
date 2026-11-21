@@ -445,6 +445,86 @@ TEST(ArrayInsertTest, ResourceOwnersSurviveGrowthAndInsertion) {
     }
 }
 
+struct ConstructOnly {
+    std::shared_ptr<int> value;
+
+    explicit ConstructOnly(int number) : value(std::make_shared<int>(number)) {}
+    ConstructOnly(const ConstructOnly&) = default;
+    ConstructOnly(ConstructOnly&&) noexcept = default;
+    ConstructOnly& operator=(const ConstructOnly&) = delete;
+    ConstructOnly& operator=(ConstructOnly&&) = delete;
+};
+
+struct CopyConstructOnly {
+    std::shared_ptr<int> value;
+
+    explicit CopyConstructOnly(int number) : value(std::make_shared<int>(number)) {}
+    CopyConstructOnly(const CopyConstructOnly&) = default;
+    CopyConstructOnly(CopyConstructOnly&&) = delete;
+    CopyConstructOnly& operator=(const CopyConstructOnly&) = delete;
+    CopyConstructOnly& operator=(CopyConstructOnly&&) = delete;
+};
+
+
+TEST(ArrayInsertTest, SupportsConstructibleTypesWithoutAssignment) {
+    for (int capacity : {0, 2, 8}) {
+        Array<ConstructOnly> a(capacity);
+        ConstructOnly first(10);
+        ConstructOnly middle(20);
+        ConstructOnly last(30);
+
+        EXPECT_EQ(a.Insert(first), 0);
+        EXPECT_EQ(a.Insert(last), 1);
+        EXPECT_EQ(a.Insert(1, middle), 1);
+
+        ASSERT_EQ(a.size(), 3);
+        EXPECT_EQ(a[0].value, first.value);
+        EXPECT_EQ(a[1].value, middle.value);
+        EXPECT_EQ(a[2].value, last.value);
+
+        EXPECT_EQ(a.Insert(0, a[2]), 0);
+
+        ASSERT_EQ(a.size(), 4);
+        EXPECT_EQ(a[0].value, last.value);
+        EXPECT_EQ(a[1].value, first.value);
+        EXPECT_EQ(a[2].value, middle.value);
+        EXPECT_EQ(a[3].value, last.value);
+    }
+}
+
+TEST(ArrayInsertTest, SupportsCopyOnlyTypesWithoutAssignment) {
+    for (int capacity : {0, 2, 8}) {
+        CopyConstructOnly first(10);
+        CopyConstructOnly middle(20);
+        CopyConstructOnly last(30);
+        {
+            Array<CopyConstructOnly> a(capacity);
+            EXPECT_EQ(a.Insert(first), 0);
+            EXPECT_EQ(a.Insert(last), 1);
+            EXPECT_EQ(a.Insert(1, middle), 1);
+
+            ASSERT_EQ(a.size(), 3);
+            EXPECT_EQ(a[0].value, first.value);
+            EXPECT_EQ(a[1].value, middle.value);
+            EXPECT_EQ(a[2].value, last.value);
+
+            EXPECT_EQ(a.Insert(0, a[2]), 0);
+
+            ASSERT_EQ(a.size(), 4);
+            EXPECT_EQ(a[0].value, last.value);
+            EXPECT_EQ(a[1].value, first.value);
+            EXPECT_EQ(a[2].value, middle.value);
+            EXPECT_EQ(a[3].value, last.value);
+            EXPECT_EQ(first.value.use_count(), 2);
+            EXPECT_EQ(middle.value.use_count(), 2);
+            EXPECT_EQ(last.value.use_count(), 3);
+        }
+        EXPECT_EQ(first.value.use_count(), 1);
+        EXPECT_EQ(middle.value.use_count(), 1);
+        EXPECT_EQ(last.value.use_count(), 1);
+    }
+}
+
 TEST(ArrayRemoveTest, RemoveReleasesOwnedResource) {
     Array<std::shared_ptr<int>> a;
     a.Insert(std::make_shared<int>(10));

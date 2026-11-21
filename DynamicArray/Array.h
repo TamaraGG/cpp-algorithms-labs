@@ -48,7 +48,7 @@ public:
 
     int Insert(int index, const T& value)
         requires (std::is_copy_constructible_v<T>);
-    int Insert(const T& value);
+    int Insert(const T& value) requires (std::is_copy_constructible_v<T>);
 
     void Remove(int index) requires (std::is_move_assignable_v<T> || std::is_copy_assignable_v<T>);
 
@@ -213,11 +213,21 @@ int Array<T>::Insert(int index, const T& value)
             ConstructMoveOrCopy(p, p-1);
             ++size_;
 
-            for (--p; p > buf_ + index; --p) {
-                AssignMoveOrCopy(p, p-1);
-            }
+            if constexpr (std::is_move_assignable_v<T> || std::is_copy_assignable_v<T>) {
+                for (--p; p > buf_ + index; --p) {
+                    AssignMoveOrCopy(p, p-1);
+                }
 
-            AssignMoveOrCopy(p, &value_copy);
+                AssignMoveOrCopy(p, &value_copy);
+            } else {
+                for (--p; p > buf_ + index; --p) {
+                    p->~T();
+                    ConstructMoveOrCopy(p, p-1);
+                }
+
+                p->~T();
+                ConstructMoveOrCopy(p, &value_copy);
+            }
         }
     }
 
@@ -225,7 +235,8 @@ int Array<T>::Insert(int index, const T& value)
 }
 
 template <typename T>
-int Array<T>::Insert(const T& value) {
+int Array<T>::Insert(const T& value)
+    requires (std::is_copy_constructible_v<T>){
     return Insert(size_, value);
 }
 
