@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cmath>
 #include <initializer_list>
+#include <type_traits>
 
 
 template<typename T>
@@ -17,6 +18,7 @@ class Array final {
     template <bool IsConst>
     class BaseIterator {
         using Pointer = std::conditional_t<IsConst, const T*, T*>;
+        using Reference = std::conditional_t<IsConst, const T&, T&>;
         friend class Array<T>;
 
         Pointer current_;
@@ -26,11 +28,17 @@ class Array final {
         BaseIterator(Pointer current, Pointer end, bool isReverse = false);
 
     public:
+        Reference operator*() const;
+        BaseIterator& operator++();
+        BaseIterator operator++(int);
+        bool operator==(const BaseIterator& rhs) const;
+        bool operator!=(const BaseIterator& rhs) const;
+
         const T& get() const;
         void set(const T& value) requires (!IsConst && std::is_copy_assignable_v<T>);
         void set(T&& value) requires (!IsConst && std::is_move_assignable_v<T>);
         void next();
-        bool hasNext() const;
+        bool hasNext() const; // it'd be better name it as isValid (checks if value in current_ is valid )
     };
 
 public:
@@ -58,6 +66,20 @@ public:
 
     int size() const;
 
+    Iterator begin();
+    ConstIterator begin() const;
+    ConstIterator cbegin() const;
+    Iterator end();
+    ConstIterator end() const;
+    ConstIterator cend() const;
+
+    Iterator rbegin();
+    ConstIterator rbegin() const;
+    ConstIterator crbegin() const;
+    Iterator rend();
+    ConstIterator rend() const;
+    ConstIterator crend() const;
+
     Iterator iterator();
     ConstIterator iterator() const;
     Iterator reverseIterator();
@@ -74,6 +96,41 @@ template <typename T>
 template <bool IsConst>
 Array<T>::BaseIterator<IsConst>::BaseIterator(Pointer current, Pointer end, bool isReverse)
     : current_(current), end_(end), isReverse_(isReverse) {}
+
+
+template <typename T>
+template <bool IsConst>
+Array<T>::template BaseIterator<IsConst>::Reference Array<T>::BaseIterator<IsConst>::operator*() const {
+    assert(hasNext());
+    return isReverse_ ? *(current_ - 1) : *current_;
+}
+
+template <typename T>
+template <bool IsConst>
+Array<T>::template BaseIterator<IsConst>& Array<T>::BaseIterator<IsConst>::operator++() {
+    next();
+    return *this;
+}
+
+template <typename T>
+template <bool IsConst>
+Array<T>::template BaseIterator<IsConst> Array<T>::BaseIterator<IsConst>::operator++(int) {
+    BaseIterator previous = *this;
+    ++(*this);
+    return previous;
+}
+
+template <typename T>
+template <bool IsConst>
+bool Array<T>::BaseIterator<IsConst>::operator==(const BaseIterator& rhs) const {
+    return current_ == rhs.current_ && end_ == rhs.end_ && isReverse_ == rhs.isReverse_;
+}
+
+template <typename T>
+template <bool IsConst>
+bool Array<T>::BaseIterator<IsConst>::operator!=(const BaseIterator& rhs) const {
+    return !(*this == rhs);
+}
 
 
 template <typename T>
@@ -277,6 +334,66 @@ T& Array<T>::operator[](int index) {
 template <typename T>
 int Array<T>::size() const {
     return size_;
+}
+
+template <typename T>
+Array<T>::Iterator Array<T>::begin() {
+    return Iterator(buf_, buf_ + size_);
+}
+
+template <typename T>
+Array<T>::ConstIterator Array<T>::begin() const {
+    return ConstIterator(buf_, buf_ + size_);
+}
+
+template <typename T>
+Array<T>::ConstIterator Array<T>::cbegin() const {
+    return begin();
+}
+
+template <typename T>
+Array<T>::Iterator Array<T>::end() {
+    return Iterator(buf_ + size_, buf_ + size_);
+}
+
+template <typename T>
+Array<T>::ConstIterator Array<T>::end() const {
+    return ConstIterator(buf_ + size_, buf_ + size_);
+}
+
+template <typename T>
+Array<T>::ConstIterator Array<T>::cend() const {
+    return end();
+}
+
+template <typename T>
+Array<T>::Iterator Array<T>::rbegin() {
+    return Iterator(buf_ + size_, buf_, true);
+}
+
+template <typename T>
+Array<T>::ConstIterator Array<T>::rbegin() const {
+    return ConstIterator(buf_ + size_, buf_, true);
+}
+
+template <typename T>
+Array<T>::ConstIterator Array<T>::crbegin() const {
+    return rbegin();
+}
+
+template <typename T>
+Array<T>::Iterator Array<T>::rend() {
+    return Iterator(buf_, buf_, true);
+}
+
+template <typename T>
+Array<T>::ConstIterator Array<T>::rend() const {
+    return ConstIterator(buf_, buf_, true);
+}
+
+template <typename T>
+Array<T>::ConstIterator Array<T>::crend() const {
+    return rend();
 }
 
 template <typename T>
