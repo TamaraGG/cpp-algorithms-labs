@@ -50,7 +50,8 @@ public:
         requires (std::is_copy_constructible_v<T>);
     int Insert(const T& value) requires (std::is_copy_constructible_v<T>);
 
-    void Remove(int index) requires (std::is_move_assignable_v<T> || std::is_copy_assignable_v<T>);
+    void Remove(int index) requires (std::is_move_assignable_v<T> || std::is_copy_assignable_v<T> ||
+              std::is_move_constructible_v<T> || std::is_copy_constructible_v<T>);
 
     const T& operator[](int index) const;
     T& operator[](int index);
@@ -241,13 +242,23 @@ int Array<T>::Insert(const T& value)
 }
 
 template <typename T>
-void Array<T>::Remove(int index) requires (std::is_move_assignable_v<T> || std::is_copy_assignable_v<T>) {
+void Array<T>::Remove(int index)
+requires (std::is_move_assignable_v<T> || std::is_copy_assignable_v<T> ||
+          std::is_move_constructible_v<T> || std::is_copy_constructible_v<T>) {
     assert(0 <= index && index < size_);
 
-    for (T* p = buf_ + index + 1; p < buf_ + size_; ++p) {
-        AssignMoveOrCopy(p-1, p);
+    if constexpr (std::is_move_assignable_v<T> || std::is_copy_assignable_v<T>) {
+        for (T* p = buf_ + index + 1; p < buf_ + size_; ++p) {
+            AssignMoveOrCopy(p - 1, p);
+        }
+        (buf_ + size_ - 1)->~T();
+    } else {
+        (buf_ + index)->~T();
+        for (T* p = buf_ + index + 1; p < buf_ + size_; ++p) {
+            ConstructMoveOrCopy(p - 1, p);
+            p->~T();
+        }
     }
-    (buf_ + size_ - 1)->~T();
     --size_;
 }
 
